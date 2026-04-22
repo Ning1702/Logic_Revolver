@@ -1,7 +1,6 @@
 ﻿using Logic_Revolver.Core;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Logic_Revolver.Game.Logic
 {
@@ -9,12 +8,14 @@ namespace Logic_Revolver.Game.Logic
     {
         public string GetBestMove(GameState state)
         {
+            // Sinh các hành động hợp lệ từ trạng thái hiện tại
             var moves = GetCandidateMoves(state);
             if (moves.Count == 0) return "WAIT";
 
             string bestMove = moves[0];
             double bestScore = double.NegativeInfinity;
 
+            // Best-First đơn giản: chọn hành động có điểm cao nhất
             foreach (var move in moves)
             {
                 GameState nextState = SimulateMove(state, move);
@@ -36,9 +37,11 @@ namespace Logic_Revolver.Game.Logic
             var player = state.Player1;
             var moves = new List<string>();
 
+            // Không còn đạn thì không có hành động tấn công
             if (state.LiveCount + state.BlankCount <= 0)
                 return moves;
 
+            // Tập toán tử hợp lệ
             if (ai.Inventory.Contains(ItemType.Glass) && state.KnownShell == null)
                 moves.Add("USE_GLASS");
 
@@ -62,6 +65,7 @@ namespace Logic_Revolver.Game.Logic
 
         private double EvaluateTransition(GameState currentState, string move, GameState nextState)
         {
+            // Hàm đánh giá tổng hợp = lợi ích nước đi + lợi thế trạng thái - đe dọa đối thủ
             double tacticalScore = EvaluateMoveUtility(currentState, move);
             double stateScore = EvaluateState(nextState);
             double opponentThreat = EstimateOpponentThreat(nextState);
@@ -72,8 +76,7 @@ namespace Logic_Revolver.Game.Logic
         private double EvaluateMoveUtility(GameState state, string move)
         {
             double pLive = GetPLive(state);
-            bool knownLive = state.KnownShell == ShellType.Live;
-            bool knownBlank = state.KnownShell == ShellType.Blank;
+            var shell = GetShellInfo(state);
 
             var ai = state.Player2;
             var player = state.Player1;
@@ -81,45 +84,50 @@ namespace Logic_Revolver.Game.Logic
             switch (move)
             {
                 case "USE_GLASS":
-                    return state.KnownShell == null ? 7.0 : -2.0;
+                    // Heuristic thông tin
+                    return shell.IsUnknown ? 7.0 : -2.0;
 
                 case "USE_CIGARETTE":
+                    // Heuristic sinh tồn
                     return 4.0 + (ai.MaxHp - ai.Hp) * 2.0;
 
                 case "USE_BEER":
-                    if (knownLive) return ai.Hp == 1 ? 4.0 : -1.0;
-                    if (knownBlank) return -3.0;
+                    // Quyết định theo xác suất
+                    if (shell.IsLive) return ai.Hp == 1 ? 4.0 : -1.0;
+                    if (shell.IsBlank) return -3.0;
                     return 3.0 * pLive;
 
                 case "USE_HANDCUFFS":
-                    return knownLive ? 7.0 : 3.0 + 2.0 * pLive;
+                    // Minimax rút gọn: giảm khả năng phản công của đối thủ
+                    return shell.IsLive ? 7.0 : 3.0 + 2.0 * pLive;
 
                 case "USE_KNIFE":
-                    if (knownBlank) return -4.0;
-                    if (knownLive) return player.Hp <= 2 ? 10.0 : 6.0;
+                    // Heuristic rủi ro - phần thưởng
+                    if (shell.IsBlank) return -4.0;
+                    if (shell.IsLive) return player.Hp <= 2 ? 10.0 : 6.0;
                     return (pLive >= 0.7 && player.Hp <= 2) ? 5.0 : 0.5;
 
                 case "SHOOT_OPPONENT":
-                    return EvaluateShootOpponent(state, pLive);
+                    return EvaluateShootOpponent(state, pLive, shell);
 
                 case "SHOOT_SELF":
-                    return EvaluateShootSelf(state, pLive);
+                    return EvaluateShootSelf(state, pLive, shell);
 
                 default:
                     return 0.0;
             }
         }
 
-        private double EvaluateShootOpponent(GameState state, double pLive)
+        private double EvaluateShootOpponent(GameState state, double pLive, ShellInfo shell)
         {
-            if (state.KnownShell == ShellType.Blank)
-                return -6.0;
+            // Utility-based: chấm theo sát thương kỳ vọng
+            if (shell.IsBlank) return -6.0;
 
-            if (state.KnownShell == ShellType.Live)
+            if (shell.IsLive)
             {
                 double value = 8.0 * state.DamageMultiplier;
                 if (state.Player1.Hp <= state.DamageMultiplier)
-                    value += 10.0;
+                    value += 10.0; // thưởng kết liễu
                 return value;
             }
 
@@ -130,13 +138,11 @@ namespace Logic_Revolver.Game.Logic
             return expectedDamage * 8.0 + finishBonus - riskPenalty;
         }
 
-        private double EvaluateShootSelf(GameState state, double pLive)
+        private double EvaluateShootSelf(GameState state, double pLive, ShellInfo shell)
         {
-            if (state.KnownShell == ShellType.Blank)
-                return 9.0;
-
-            if (state.KnownShell == ShellType.Live)
-                return -12.0 * state.DamageMultiplier;
+            // Ra quyết định dưới bất định
+            if (shell.IsBlank) return 9.0;
+            if (shell.IsLive) return -12.0 * state.DamageMultiplier;
 
             double keepTurnReward = (1.0 - pLive) * 8.0;
             double selfDamageRisk = pLive * 10.0 * state.DamageMultiplier;
@@ -152,28 +158,24 @@ namespace Logic_Revolver.Game.Logic
 
             double score = 0.0;
 
-            // 1. Máu
-            score += ai.Hp * 6.0;
-            score -= player.Hp * 6.0;
+            // Heuristic lợi thế tài nguyên
+            score += ai.Hp * 6.0 - player.Hp * 6.0;
+            score += ai.Inventory.Count * 1.5 - player.Inventory.Count * 1.2;
 
-            // 2. Vật phẩm
-            score += ai.Inventory.Count * 1.5;
-            score -= player.Inventory.Count * 1.2;
-
-            // 3. Kiểm soát lượt / khóa đối thủ
+            // Heuristic kiểm soát lượt
             if (player.IsHandcuffed)
                 score += 5.0;
 
-            // 4. Kiến thức về viên đạn hiện tại
+            // Heuristic thông tin
             if (state.KnownShell == ShellType.Live)
                 score += 4.0;
             else if (state.KnownShell == ShellType.Blank)
                 score += 3.0;
 
-            // 5. Damage multiplier
+            // Heuristic tấn công
             score += (state.DamageMultiplier - 1) * 3.0;
 
-            // 6. Rủi ro nếu AI đang rất yếu
+            // Heuristic phòng thủ
             if (ai.Hp == 1)
                 score -= pLive * 5.0;
 
@@ -182,6 +184,7 @@ namespace Logic_Revolver.Game.Logic
 
         private double EstimateOpponentThreat(GameState state)
         {
+            // Minimax rút gọn 1 lớp: ước lượng phản công của đối thủ
             var player = state.Player1;
             double pLive = GetPLive(state);
 
@@ -198,6 +201,7 @@ namespace Logic_Revolver.Game.Logic
 
         private double GetPLive(GameState state)
         {
+            // Suy luận xác suất viên hiện tại là đạn thật
             int total = state.LiveCount + state.BlankCount;
             if (total <= 0) return 0.0;
 
@@ -209,6 +213,7 @@ namespace Logic_Revolver.Game.Logic
 
         private GameState SimulateMove(GameState state, string move)
         {
+            // Mô phỏng chuyển trạng thái
             var next = CloneState(state);
             var ai = next.Player2;
             var player = next.Player1;
@@ -216,13 +221,13 @@ namespace Logic_Revolver.Game.Logic
             switch (move)
             {
                 case "USE_GLASS":
+                    // Bản đơn giản: chỉ coi như hành động lấy thông tin
                     break;
 
                 case "USE_CIGARETTE":
                     if (ai.Inventory.Contains(ItemType.Cigarette) && ai.Hp < ai.MaxHp)
                     {
-                        ai.Hp++;
-                        if (ai.Hp > ai.MaxHp) ai.Hp = ai.MaxHp;
+                        ai.Hp = Math.Min(ai.Hp + 1, ai.MaxHp);
                         ai.Inventory.Remove(ItemType.Cigarette);
                     }
                     break;
@@ -266,18 +271,12 @@ namespace Logic_Revolver.Game.Logic
 
         private void ApplyShot(GameState state, bool shootOpponent)
         {
+            // Hàm chuyển trạng thái sau khi bắn
             var ai = state.Player2;
             var player = state.Player1;
 
-            bool isLive = state.KnownShell == ShellType.Live;
-            bool isBlank = state.KnownShell == ShellType.Blank;
-
-            if (state.KnownShell == null)
-            {
-                double pLive = GetPLive(state);
-                isLive = pLive >= 0.5;
-                isBlank = !isLive;
-            }
+            bool isLive = ResolveCurrentShellIsLive(state);
+            bool isBlank = !isLive;
 
             if (isLive)
             {
@@ -297,26 +296,50 @@ namespace Logic_Revolver.Game.Logic
 
         private void RemoveCurrentShell(GameState state)
         {
+            // Loại bỏ viên hiện tại khỏi ổ đạn
             if (state.KnownShell == ShellType.Live)
             {
                 if (state.LiveCount > 0) state.LiveCount--;
+                return;
             }
-            else if (state.KnownShell == ShellType.Blank)
+
+            if (state.KnownShell == ShellType.Blank)
             {
                 if (state.BlankCount > 0) state.BlankCount--;
+                return;
+            }
+
+            if (ResolveCurrentShellIsLive(state))
+            {
+                if (state.LiveCount > 0) state.LiveCount--;
             }
             else
             {
-                double pLive = GetPLive(state);
-                if (pLive >= 0.5 && state.LiveCount > 0)
-                    state.LiveCount--;
-                else if (state.BlankCount > 0)
-                    state.BlankCount--;
+                if (state.BlankCount > 0) state.BlankCount--;
             }
+        }
+
+        private bool ResolveCurrentShellIsLive(GameState state)
+        {
+            // Nếu chưa biết, xấp xỉ theo xác suất
+            if (state.KnownShell == ShellType.Live) return true;
+            if (state.KnownShell == ShellType.Blank) return false;
+            return GetPLive(state) >= 0.5;
+        }
+
+        private ShellInfo GetShellInfo(GameState state)
+        {
+            return new ShellInfo
+            {
+                IsLive = state.KnownShell == ShellType.Live,
+                IsBlank = state.KnownShell == ShellType.Blank,
+                IsUnknown = state.KnownShell == null
+            };
         }
 
         private GameState CloneState(GameState state)
         {
+            // Sao chép trạng thái để mô phỏng
             return new GameState
             {
                 LiveCount = state.LiveCount,
@@ -336,6 +359,13 @@ namespace Logic_Revolver.Game.Logic
                     Inventory = new List<ItemType>(state.Player2.Inventory)
                 }
             };
+        }
+
+        private struct ShellInfo
+        {
+            public bool IsLive;
+            public bool IsBlank;
+            public bool IsUnknown;
         }
     }
 }
