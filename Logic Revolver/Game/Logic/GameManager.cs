@@ -18,8 +18,8 @@ namespace LogicRevolver.Game.Logic
 
         public event Action<string> OnLog;
         public event Action OnGameUpdate;
-        public event Action OnRoundOver; // Sự kiện hết đạn -> Nạp lại
-        public event Action OnMatchEnd;  // Sự kiện hết máu -> Qua màn mới / Kết thúc game
+        public event Action OnRoundOver;
+        public event Action OnMatchEnd;
 
         public GameManager()
         {
@@ -30,9 +30,9 @@ namespace LogicRevolver.Game.Logic
         {
             _currentMatchRound = 1; // Bắt đầu từ Round 1
 
-            // Khởi tạo Player
-            State.Player1 = new Player("PLAYER 1", 4, false); // Máu khởi điểm
-            State.Player2 = new Player("BOT AI", 4, true);
+            // --- ĐÃ CẬP NHẬT: MÁU BAN ĐẦU LÀ 4, MÁU TỐI ĐA LÀ 5 ---
+            State.Player1 = new Player("PLAYER 1", 5, false) { Hp = 4 };
+            State.Player2 = new Player("BOT AI", 5, true) { Hp = 4 };
             State.CurrentPlayer = State.Player1;
 
             OnLog?.Invoke("=== BẮT ĐẦU GAME: ROUND 1 ===");
@@ -43,9 +43,6 @@ namespace LogicRevolver.Game.Logic
         public void LoadGun()
         {
             GunChamber.Clear();
-
-            // reset viên đạn vừa bắn trước đó
-           
 
             // 1. CẤP VẬT PHẨM (Dựa trên Round hiện tại)
             int itemsToGive = 0;
@@ -67,14 +64,27 @@ namespace LogicRevolver.Game.Logic
             }
 
             // 2. CẤU HÌNH ĐẠN (Tăng độ khó theo Round)
-            int minTotal = 3, maxTotal = 3;
-            if (_currentMatchRound == 2) { minTotal = 4; maxTotal = 6; }
-            else if (_currentMatchRound >= 3) { minTotal = 6; maxTotal = 8; }
+            // --- ĐÃ CẬP NHẬT: SỐ ĐẠN RANDOM MỚI ---
+            int minTotal = 2, maxTotal = 5; // Mặc định là Round 1
 
-            // Random số đạn
+            if (_currentMatchRound == 2)
+            {
+                minTotal = 3;
+                maxTotal = 6;
+            }
+            else if (_currentMatchRound >= 3)
+            {
+                minTotal = 4;
+                maxTotal = 8;
+            }
+
+            // Random số lượng tổng viên đạn
             int total = _rand.Next(minTotal, maxTotal + 1);
-            int minLive = (int)Math.Ceiling(total / 2.0); // Đạn thật >= 50%
-            int live = _rand.Next(minLive, total); // Random đạn thật
+
+            // Random số đạn thật (luôn đảm bảo >= 50% tổng số đạn)
+            int minLive = (int)Math.Ceiling(total / 2.0);
+            int live = _rand.Next(minLive, total);
+
             int blank = total - live;
 
             State.LiveCount = live;
@@ -92,7 +102,6 @@ namespace LogicRevolver.Game.Logic
             OnGameUpdate?.Invoke();
         }
 
-        // --- XỬ LÝ TRẠNG THÁI GAME (Quan trọng) ---
         private void CheckGameState()
         {
             // 1. KIỂM TRA MÁU (Ai chết?)
@@ -149,9 +158,9 @@ namespace LogicRevolver.Game.Logic
             _currentMatchRound++;
 
             // --- RESET TRẠNG THÁI CHO ROUND MỚI ---
-            // 1. Hồi đầy máu
-            State.Player1.Hp = State.Player1.MaxHp;
-            State.Player2.Hp = State.Player2.MaxHp;
+            // 1. Hồi đầy máu (Lưu ý: Máu tối đa là 5, nhưng khi qua round chỉ hồi về 4 để tạo động lực dùng đồ)
+            State.Player1.Hp = 4;
+            State.Player2.Hp = 4;
 
             // 2. Xóa sạch túi đồ cũ (Luật game gốc: Qua màn là mất đồ cũ)
             State.Player1.Inventory.Clear();
@@ -233,7 +242,6 @@ namespace LogicRevolver.Game.Logic
                         if (s == ShellType.Live) State.LiveCount--;
                         else State.BlankCount--;
 
-                        // Chặn âm
                         State.LiveCount = Math.Max(0, State.LiveCount);
                         State.BlankCount = Math.Max(0, State.BlankCount);
 
@@ -260,14 +268,15 @@ namespace LogicRevolver.Game.Logic
                     break;
 
                 case ItemType.Cigarette:
+                    // --- ĐÃ CẬP NHẬT: MÁU TỐI ĐA KHI DÙNG THUỐC LÀ 5 ---
                     if (p.Hp < p.MaxHp)
                     {
                         p.Hp++; // Tăng 1 máu
-                        OnLog?.Invoke($">> {p.Name} hút thuốc: Hồi 1 máu (HP: {p.Hp})");
+                        OnLog?.Invoke($">> {p.Name} hút thuốc: Hồi 1 máu (HP: {p.Hp}/{p.MaxHp})");
                     }
                     else
                     {
-                        OnLog?.Invoke($">> {p.Name} hút thuốc cho ngầu (Máu đã đầy)");
+                        OnLog?.Invoke($">> {p.Name} hút thuốc cho ngầu (Máu đã đầy {p.MaxHp}/{p.MaxHp})");
                     }
                     break;
             }

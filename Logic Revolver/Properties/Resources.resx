@@ -271,4 +271,55 @@
   <data name="Reload" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Reload.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="Dealer_Holdgun_Player_curved" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Dealer_Holdgun_Player_curved.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Dealer_ShootSelf_hit_1" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Dealer_ShootSelf_hit_1.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Dealer_ShootSelf_hit_1_Player_curved" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Dealer_ShootSelf_hit_1_Player_curved.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Dealer_ShootSelf_hit_2" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Dealer_ShootSelf_hit_2.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Dealer_ShootSelf_hit_2_Player_curved" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Dealer_ShootSelf_hit_2_Player_curved.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Dealer_ShootSelf_hit_3" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Dealer_ShootSelf_hit_3.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Dealer_ShootSelf_hit_3_Player_curved" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Dealer_ShootSelf_hit_3_Player_curved.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Dealer_Takegun_3" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Dealer_Takegun_3.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Dealer_use_beer" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Dealer_use_beer.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Dealer_use_tobaco" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Dealer_use_tobaco.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Player_Holdgun_Dealer_curved" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Player_Holdgun_Dealer_curved.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Player_TakeGun_2" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Player_TakeGun_2.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Player_use_beer" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Player_use_beer.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Player_use_tobaco" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Player_use_tobaco.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Red_bullet" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Red_bullet.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Revolver_Gun_sawed" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Revolver_Gun_sawed.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Blue_bullet" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Blue_bullet.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
 </root>

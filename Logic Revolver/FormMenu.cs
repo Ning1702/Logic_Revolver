@@ -130,15 +130,13 @@ namespace Logic_Revolver
 
         private void lblExit_Click(object sender, EventArgs e)
         {
-            var result = MessageBox.Show(
-                "Bạn có chắc muốn thoát không?",
-                "Exit",
-                MessageBoxButtons.YesNo,
-                MessageBoxIcon.Question
-            );
-
-            if (result == DialogResult.Yes)
-                Application.Exit();
+            using (FormExitConfirm frm = new FormExitConfirm())
+            {
+                if (frm.ShowDialog(this) == DialogResult.Yes)
+                {
+                    Application.Exit();
+                }
+            }
         }
 
         private void lblRules_Click(object sender, EventArgs e)

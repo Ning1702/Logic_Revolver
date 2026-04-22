@@ -124,6 +124,15 @@
       <DependentUpon>FormMain.cs</DependentUpon>
     </Compile>
     <Compile Include="Game\Logic\GameManager.cs" />
+    <Compile Include="Game\UI\FormAiConfirm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Game\UI\FormAiStopConfirm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Game\UI\FormExitConfirm.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="ImageLoader.cs" />
     <Compile Include="Item.cs">
       <SubType>Form</SubType>
@@ -200,9 +209,19 @@
     <Content Include="Resources\bgm_round1.wav" />
     <Content Include="Resources\bgm_round2.wav" />
     <Content Include="Resources\bgm_round3.wav" />
+    <Content Include="Resources\Blue_bullet.png" />
     <Content Include="Resources\Brown.png" />
     <Content Include="Resources\Bullet.png" />
     <None Include="Resources\Dealer_ShootYou_Player_curved.png" />
+    <Content Include="Resources\Dealer_Holdgun_Player_curved.png" />
+    <Content Include="Resources\Dealer_ShootSelf_hit_1.png" />
+    <Content Include="Resources\Dealer_ShootSelf_hit_1_Player_curved.png" />
+    <Content Include="Resources\Dealer_ShootSelf_hit_2.png" />
+    <Content Include="Resources\Dealer_ShootSelf_hit_2_Player_curved.png" />
+    <Content Include="Resources\Dealer_ShootSelf_hit_3.png" />
+    <Content Include="Resources\Dealer_ShootSelf_hit_3_Player_curved.png" />
+    <Content Include="Resources\Dealer_use_beer.png" />
+    <Content Include="Resources\Dealer_use_tobaco.png" />
     <Content Include="Resources\Enemy_Hit_1.png" />
     <None Include="Resources\Enemy_Hit_1_Dealer_curved.png" />
     <Content Include="Resources\Enemy_Hit_2.png" />
@@ -211,11 +230,10 @@
     <Content Include="Resources\Handcuff.png" />
     <Content Include="Resources\Heart_Health.png" />
     <Content Include="Resources\Magnifier.png" />
-    <None Include="Resources\Normal_Dealer_curved_.png" />
     <Content Include="Resources\Normal_1.png" />
-    <None Include="Resources\Normal_Player_curved_.png" />
     <None Include="Resources\Normal_Dealer_curved.png" />
     <None Include="Resources\Normal_Player_curved.png" />
+    <Content Include="Resources\Player_Holdgun_Dealer_curved.png" />
     <Content Include="Resources\Player_ShootSelf.png" />
     <None Include="Resources\Player_ShootSelf_Dealer_curved.png" />
     <Content Include="Resources\Player_ShootYou.png" />
@@ -224,6 +242,9 @@
     <Content Include="Resources\Player_TakeGun_2.png" />
     <None Include="Resources\Reload.png" />
     <None Include="Resources\Player_TakeGun_Dealer_curved.png" />
+    <Content Include="Resources\Player_use_beer.png" />
+    <Content Include="Resources\Player_use_tobaco.png" />
+    <Content Include="Resources\Red_bullet.png" />
     <Content Include="Resources\Revolver_Gun_sawed.png" />
     <Content Include="Resources\Revolver_Gun.png" />
     <Content Include="Resources\Saw.png" />

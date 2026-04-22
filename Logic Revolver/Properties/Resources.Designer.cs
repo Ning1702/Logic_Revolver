@@ -119,6 +119,16 @@ namespace Logic_Revolver.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap Blue_bullet {
+            get {
+                object obj = ResourceManager.GetObject("Blue_bullet", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap Brown {
             get {
                 object obj = ResourceManager.GetObject("Brown", resourceCulture);
@@ -149,9 +159,79 @@ namespace Logic_Revolver.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap Dealer_Holdgun_Player_curved {
+            get {
+                object obj = ResourceManager.GetObject("Dealer_Holdgun_Player_curved", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap Dealer_ShootSelf {
             get {
                 object obj = ResourceManager.GetObject("Dealer_ShootSelf", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap Dealer_ShootSelf_hit_1 {
+            get {
+                object obj = ResourceManager.GetObject("Dealer_ShootSelf_hit_1", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap Dealer_ShootSelf_hit_1_Player_curved {
+            get {
+                object obj = ResourceManager.GetObject("Dealer_ShootSelf_hit_1_Player_curved", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap Dealer_ShootSelf_hit_2 {
+            get {
+                object obj = ResourceManager.GetObject("Dealer_ShootSelf_hit_2", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap Dealer_ShootSelf_hit_2_Player_curved {
+            get {
+                object obj = ResourceManager.GetObject("Dealer_ShootSelf_hit_2_Player_curved", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap Dealer_ShootSelf_hit_3 {
+            get {
+                object obj = ResourceManager.GetObject("Dealer_ShootSelf_hit_3", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap Dealer_ShootSelf_hit_3_Player_curved {
+            get {
+                object obj = ResourceManager.GetObject("Dealer_ShootSelf_hit_3_Player_curved", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -192,6 +272,36 @@ namespace Logic_Revolver.Properties {
         internal static System.Drawing.Bitmap Dealer_Takegun_2 {
             get {
                 object obj = ResourceManager.GetObject("Dealer_Takegun_2", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap Dealer_Takegun_3 {
+            get {
+                object obj = ResourceManager.GetObject("Dealer_Takegun_3", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap Dealer_use_beer {
+            get {
+                object obj = ResourceManager.GetObject("Dealer_use_beer", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap Dealer_use_tobaco {
+            get {
+                object obj = ResourceManager.GetObject("Dealer_use_tobaco", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -319,6 +429,16 @@ namespace Logic_Revolver.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap Player_Holdgun_Dealer_curved {
+            get {
+                object obj = ResourceManager.GetObject("Player_Holdgun_Dealer_curved", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap Player_ShootSelf {
             get {
                 object obj = ResourceManager.GetObject("Player_ShootSelf", resourceCulture);
@@ -369,9 +489,49 @@ namespace Logic_Revolver.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap Player_TakeGun_2 {
+            get {
+                object obj = ResourceManager.GetObject("Player_TakeGun_2", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap Player_TakeGun_Dealer_curved {
             get {
                 object obj = ResourceManager.GetObject("Player_TakeGun_Dealer_curved", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap Player_use_beer {
+            get {
+                object obj = ResourceManager.GetObject("Player_use_beer", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap Player_use_tobaco {
+            get {
+                object obj = ResourceManager.GetObject("Player_use_tobaco", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap Red_bullet {
+            get {
+                object obj = ResourceManager.GetObject("Red_bullet", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -392,6 +552,16 @@ namespace Logic_Revolver.Properties {
         internal static System.Drawing.Bitmap Revolver_Gun {
             get {
                 object obj = ResourceManager.GetObject("Revolver_Gun", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap Revolver_Gun_sawed {
+            get {
+                object obj = ResourceManager.GetObject("Revolver_Gun_sawed", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

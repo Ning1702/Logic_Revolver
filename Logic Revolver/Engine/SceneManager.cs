@@ -12,6 +12,12 @@ namespace Logic_Revolver.Engine
         private static Scene currentScene;
         private static Panel mainView; // Cái Panel chính của Form
 
+        // Cho phép lấy scene hiện tại từ bên ngoài
+        public static Scene CurrentScene
+        {
+            get { return currentScene; }
+        }
+
         public static void SetDisplay(Panel panel)
         {
             mainView = panel;
@@ -21,9 +27,9 @@ namespace Logic_Revolver.Engine
         {
             if (mainView == null) return;
 
-            mainView.Controls.Clear(); // Xóa sạch giao diện màn cũ
+            mainView.Controls.Clear();   // Xóa sạch giao diện màn cũ
             currentScene = newScene;
-            currentScene.Load();       // Tải màn mới
+            currentScene.Load();         // Tải màn mới
             currentScene.Draw(mainView); // Vẽ màn mới
         }
     }
