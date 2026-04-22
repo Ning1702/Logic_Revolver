@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Logic_Revolver.Game.Logic
 {
-    public class BuckshotAI_Clean
+    public class BuckshotAI
     {
         public string GetBestMove(GameState state)
         {
