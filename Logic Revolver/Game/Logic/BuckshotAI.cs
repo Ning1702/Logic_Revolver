@@ -8,15 +8,118 @@ namespace Logic_Revolver.Game.Logic
     {
         public string GetBestMove(GameState state)
         {
-            // Sinh các hành động hợp lệ từ trạng thái hiện tại
-            var moves = GetCandidateMoves(state);
-            if (moves.Count == 0) return "WAIT";
+            var ai = state.Player2;
+            var player = state.Player1;
 
-            string bestMove = moves[0];
+            int live = state.LiveCount;
+            int blank = state.BlankCount;
+            int total = live + blank;
+            double pLive = GetPLive(state);
+
+            if (total == 0) return "WAIT";
+
+            int itemCount = ai.Inventory.Count;
+            bool shellUnknown = state.KnownShell == null;
+            bool enemyWeak = player.Hp <= 2;
+            bool aiInDanger = ai.Hp <= 2;
+
+            // --- GIAI ĐOẠN 1: DÙNG ITEM THÔNG TIN / PHÒNG THỦ CHỦ ĐỘNG HƠN ---
+
+            // Kính lúp: dùng sớm hơn nếu chưa biết viên hiện tại
+            if (ai.Inventory.Contains(ItemType.Glass) && shellUnknown)
+            {
+                if (total >= 2 || itemCount >= 2 || aiInDanger || enemyWeak)
+                    return "USE_GLASS";
+            }
+
+            // Hồi máu khi nguy hiểm hoặc khi xác suất đạn thật khá cao
+            if (ai.Inventory.Contains(ItemType.Cigarette) &&
+                ai.Hp < ai.MaxHp &&
+                (ai.Hp <= 2 || pLive >= 0.55))
+            {
+                return "USE_CIGARETTE";
+            }
+
+            // --- GIAI ĐOẠN 2: KHI ĐÃ BIẾT SHELL HIỆN TẠI ---
+
+            if (state.KnownShell != null)
+            {
+                if (state.KnownShell == ShellType.Live)
+                {
+                    if (ai.Inventory.Contains(ItemType.Knife) &&
+                        state.DamageMultiplier == 1 &&
+                        player.Hp <= 2)
+                    {
+                        return "USE_KNIFE";
+                    }
+
+                    if (ai.Inventory.Contains(ItemType.Handcuffs) &&
+                        !player.IsHandcuffed)
+                    {
+                        return "USE_HANDCUFFS";
+                    }
+
+                    if (ai.Inventory.Contains(ItemType.Knife) &&
+                        state.DamageMultiplier == 1)
+                    {
+                        return "USE_KNIFE";
+                    }
+
+                    if (ai.Inventory.Contains(ItemType.Beer) &&
+                        ai.Hp == 1 &&
+                        player.Hp > state.DamageMultiplier)
+                    {
+                        return "USE_BEER";
+                    }
+
+                    return "SHOOT_OPPONENT";
+                }
+                else
+                {
+                    // Biết chắc blank: bắn mình để tối ưu nhịp
+                    return "SHOOT_SELF";
+                }
+            }
+
+            // --- GIAI ĐOẠN 3: CHƯA BIẾT SHELL, DÙNG ITEM CHỦ ĐỘNG HƠN ---
+
+            if (ai.Inventory.Contains(ItemType.Beer))
+            {
+                bool shouldUseBeer =
+                    pLive >= 0.60 ||
+                    (ai.Hp == 1 && pLive >= 0.45) ||
+                    (itemCount >= 3 && total >= 2 && pLive >= 0.50);
+
+                if (shouldUseBeer)
+                    return "USE_BEER";
+            }
+
+            if (ai.Inventory.Contains(ItemType.Handcuffs) &&
+                !player.IsHandcuffed &&
+                pLive >= 0.55)
+            {
+                return "USE_HANDCUFFS";
+            }
+
+            if (ai.Inventory.Contains(ItemType.Knife) &&
+                state.DamageMultiplier == 1 &&
+                ((pLive >= 0.65 && player.Hp <= 2) ||
+                 (pLive >= 0.75 && itemCount >= 2)))
+            {
+                return "USE_KNIFE";
+            }
+
+            // --- GIAI ĐOẠN 4: CHẤM ĐIỂM TOÀN BỘ HÀNH ĐỘNG ---
+
+            var candidateMoves = GetCandidateMoves(state);
+
+            if (candidateMoves.Count == 0)
+                return "WAIT";
+
+            string bestMove = candidateMoves[0];
             double bestScore = double.NegativeInfinity;
 
-            // Best-First đơn giản: chọn hành động có điểm cao nhất
-            foreach (var move in moves)
+            foreach (var move in candidateMoves)
             {
                 GameState nextState = SimulateMove(state, move);
                 double score = EvaluateTransition(state, move, nextState);
@@ -37,11 +140,9 @@ namespace Logic_Revolver.Game.Logic
             var player = state.Player1;
             var moves = new List<string>();
 
-            // Không còn đạn thì không có hành động tấn công
             if (state.LiveCount + state.BlankCount <= 0)
                 return moves;
 
-            // Tập toán tử hợp lệ
             if (ai.Inventory.Contains(ItemType.Glass) && state.KnownShell == null)
                 moves.Add("USE_GLASS");
 
@@ -65,7 +166,6 @@ namespace Logic_Revolver.Game.Logic
 
         private double EvaluateTransition(GameState currentState, string move, GameState nextState)
         {
-            // Hàm đánh giá tổng hợp = lợi ích nước đi + lợi thế trạng thái - đe dọa đối thủ
             double tacticalScore = EvaluateMoveUtility(currentState, move);
             double stateScore = EvaluateState(nextState);
             double opponentThreat = EstimateOpponentThreat(nextState);
@@ -81,53 +181,111 @@ namespace Logic_Revolver.Game.Logic
             var ai = state.Player2;
             var player = state.Player1;
 
+            int currentItemCount = ai.Inventory.Count;
+            int totalShells = state.LiveCount + state.BlankCount;
+
+            double score = 0.0;
+
             switch (move)
             {
                 case "USE_GLASS":
-                    // Heuristic thông tin
-                    return shell.IsUnknown ? 7.0 : -2.0;
+                    score += shell.IsUnknown ? 8.5 : -3.0;
+
+                    if (totalShells >= 2) score += 2.5;
+                    if (currentItemCount >= 2) score += 2.0;
+                    if (ai.Hp <= 2) score += 1.5;
+                    if (player.Hp <= 2) score += 1.0;
+                    break;
 
                 case "USE_CIGARETTE":
-                    // Heuristic sinh tồn
-                    return 4.0 + (ai.MaxHp - ai.Hp) * 2.0;
+                    score += 5.0 + (ai.MaxHp - ai.Hp) * 1.5;
+                    if (ai.Hp == 1) score += 3.0;
+                    break;
 
                 case "USE_BEER":
-                    // Quyết định theo xác suất
-                    if (shell.IsLive) return ai.Hp == 1 ? 4.0 : -1.0;
-                    if (shell.IsBlank) return -3.0;
-                    return 3.0 * pLive;
+                    if (shell.IsLive)
+                    {
+                        score += (ai.Hp == 1 && player.Hp > state.DamageMultiplier) ? 4.0 : 1.0;
+                    }
+                    else if (shell.IsBlank)
+                    {
+                        score -= 3.0;
+                    }
+                    else
+                    {
+                        if (pLive >= 0.7) score += 4.5;
+                        else if (pLive >= 0.55) score += 2.5;
+                        else score += 0.5;
+
+                        if (ai.Hp == 1) score += 2.0;
+                        if (currentItemCount >= 3) score += 1.5;
+                        if (totalShells >= 2) score += 1.0;
+                    }
+
+                    score += 1.5;
+                    break;
 
                 case "USE_HANDCUFFS":
-                    // Minimax rút gọn: giảm khả năng phản công của đối thủ
-                    return shell.IsLive ? 7.0 : 3.0 + 2.0 * pLive;
+                    score += !player.IsHandcuffed ? 5.0 : -3.0;
+                    if (shell.IsLive) score += 3.0;
+                    else if (!shell.IsBlank && pLive >= 0.55) score += 2.0;
+                    score += 2.0;
+                    break;
 
                 case "USE_KNIFE":
-                    // Heuristic rủi ro - phần thưởng
-                    if (shell.IsBlank) return -4.0;
-                    if (shell.IsLive) return player.Hp <= 2 ? 10.0 : 6.0;
-                    return (pLive >= 0.7 && player.Hp <= 2) ? 5.0 : 0.5;
+                    if (state.DamageMultiplier > 1)
+                    {
+                        score -= 4.0;
+                    }
+                    else if (shell.IsBlank)
+                    {
+                        score -= 5.0;
+                    }
+                    else if (shell.IsLive)
+                    {
+                        score += 7.0;
+                        if (player.Hp <= 2) score += 4.0;
+                    }
+                    else
+                    {
+                        if (pLive >= 0.7 && player.Hp <= 2) score += 4.0;
+                        else if (pLive >= 0.75) score += 2.0;
+                        else score -= 1.0;
+                    }
+
+                    score += 1.5;
+                    break;
 
                 case "SHOOT_OPPONENT":
-                    return EvaluateShootOpponent(state, pLive, shell);
+                    score += EvaluateShootOpponent(state, pLive, shell);
+                    break;
 
                 case "SHOOT_SELF":
-                    return EvaluateShootSelf(state, pLive, shell);
-
-                default:
-                    return 0.0;
+                    score += EvaluateShootSelf(state, pLive, shell);
+                    break;
             }
+
+            // Phạt nhẹ nếu còn nhiều item mà vẫn không dùng
+            if ((move == "SHOOT_OPPONENT" || move == "SHOOT_SELF") &&
+                currentItemCount >= 3 &&
+                totalShells >= 2)
+            {
+                score -= 1.5;
+            }
+
+            return score;
         }
 
         private double EvaluateShootOpponent(GameState state, double pLive, ShellInfo shell)
         {
-            // Utility-based: chấm theo sát thương kỳ vọng
-            if (shell.IsBlank) return -6.0;
+            if (shell.IsBlank)
+                return -6.0;
 
             if (shell.IsLive)
             {
                 double value = 8.0 * state.DamageMultiplier;
                 if (state.Player1.Hp <= state.DamageMultiplier)
-                    value += 10.0; // thưởng kết liễu
+                    value += 10.0;
                 return value;
             }
 
@@ -140,9 +298,11 @@ namespace Logic_Revolver.Game.Logic
 
         private double EvaluateShootSelf(GameState state, double pLive, ShellInfo shell)
         {
-            // Ra quyết định dưới bất định
-            if (shell.IsBlank) return 9.0;
-            if (shell.IsLive) return -12.0 * state.DamageMultiplier;
+            if (shell.IsBlank)
+                return 9.0;
+
+            if (shell.IsLive)
+                return -12.0 * state.DamageMultiplier;
 
             double keepTurnReward = (1.0 - pLive) * 8.0;
             double selfDamageRisk = pLive * 10.0 * state.DamageMultiplier;
@@ -158,24 +318,28 @@ namespace Logic_Revolver.Game.Logic
 
             double score = 0.0;
 
-            // Heuristic lợi thế tài nguyên
-            score += ai.Hp * 6.0 - player.Hp * 6.0;
-            score += ai.Inventory.Count * 1.5 - player.Inventory.Count * 1.2;
+            // Máu
+            score += ai.Hp * 6.0;
+            score -= player.Hp * 6.0;
 
-            // Heuristic kiểm soát lượt
+            // Vật phẩm
+            score += ai.Inventory.Count * 1.5;
+            score -= player.Inventory.Count * 1.2;
+
+            // Khóa đối thủ
             if (player.IsHandcuffed)
                 score += 5.0;
 
-            // Heuristic thông tin
+            // Biết thông tin shell hiện tại
             if (state.KnownShell == ShellType.Live)
                 score += 4.0;
             else if (state.KnownShell == ShellType.Blank)
                 score += 3.0;
 
-            // Heuristic tấn công
+            // Buff damage
             score += (state.DamageMultiplier - 1) * 3.0;
 
-            // Heuristic phòng thủ
+            // Nếu AI đang rất yếu thì state nguy hiểm hơn khi pLive cao
             if (ai.Hp == 1)
                 score -= pLive * 5.0;
 
@@ -184,7 +348,6 @@ namespace Logic_Revolver.Game.Logic
 
         private double EstimateOpponentThreat(GameState state)
         {
-            // Minimax rút gọn 1 lớp: ước lượng phản công của đối thủ
             var player = state.Player1;
             double pLive = GetPLive(state);
 
@@ -201,7 +364,6 @@ namespace Logic_Revolver.Game.Logic
 
         private double GetPLive(GameState state)
         {
-            // Suy luận xác suất viên hiện tại là đạn thật
             int total = state.LiveCount + state.BlankCount;
             if (total <= 0) return 0.0;
 
@@ -213,7 +375,6 @@ namespace Logic_Revolver.Game.Logic
 
         private GameState SimulateMove(GameState state, string move)
         {
-            // Mô phỏng chuyển trạng thái
             var next = CloneState(state);
             var ai = next.Player2;
             var player = next.Player1;
@@ -221,7 +382,13 @@ namespace Logic_Revolver.Game.Logic
             switch (move)
             {
                 case "USE_GLASS":
-                    // Bản đơn giản: chỉ coi như hành động lấy thông tin
+                    if (ai.Inventory.Contains(ItemType.Glass))
+                    {
+                        ai.Inventory.Remove(ItemType.Glass);
+
+                        // Nếu engine của bạn có cơ chế soi viên hiện tại,
+                        // hãy gán next.KnownShell ở đây.
+                    }
                     break;
 
                 case "USE_CIGARETTE":
@@ -271,7 +438,6 @@ namespace Logic_Revolver.Game.Logic
 
         private void ApplyShot(GameState state, bool shootOpponent)
         {
-            // Hàm chuyển trạng thái sau khi bắn
             var ai = state.Player2;
             var player = state.Player1;
 
@@ -280,14 +446,18 @@ namespace Logic_Revolver.Game.Logic
 
             if (isLive)
             {
-                if (shootOpponent) player.Hp -= state.DamageMultiplier;
-                else ai.Hp -= state.DamageMultiplier;
+                if (shootOpponent)
+                    player.Hp -= state.DamageMultiplier;
+                else
+                    ai.Hp -= state.DamageMultiplier;
 
-                if (state.LiveCount > 0) state.LiveCount--;
+                if (state.LiveCount > 0)
+                    state.LiveCount--;
             }
             else if (isBlank)
             {
-                if (state.BlankCount > 0) state.BlankCount--;
+                if (state.BlankCount > 0)
+                    state.BlankCount--;
             }
 
             state.DamageMultiplier = 1;
@@ -296,7 +466,6 @@ namespace Logic_Revolver.Game.Logic
 
         private void RemoveCurrentShell(GameState state)
         {
-            // Loại bỏ viên hiện tại khỏi ổ đạn
             if (state.KnownShell == ShellType.Live)
             {
                 if (state.LiveCount > 0) state.LiveCount--;
@@ -321,7 +490,6 @@ namespace Logic_Revolver.Game.Logic
 
         private bool ResolveCurrentShellIsLive(GameState state)
         {
-            // Nếu chưa biết, xấp xỉ theo xác suất
             if (state.KnownShell == ShellType.Live) return true;
             if (state.KnownShell == ShellType.Blank) return false;
             return GetPLive(state) >= 0.5;
@@ -339,7 +507,6 @@ namespace Logic_Revolver.Game.Logic
 
         private GameState CloneState(GameState state)
         {
-            // Sao chép trạng thái để mô phỏng
             return new GameState
             {
                 LiveCount = state.LiveCount,
